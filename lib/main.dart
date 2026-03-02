@@ -29,6 +29,8 @@ class MyApp extends StatelessWidget {
 class AppTheme {
   // Kumpulan warna utama agar styling konsisten di semua widget.
   // Semua konstanta di bawah dipakai berulang agar mudah maintenance.
+  // Format hex ARGB: 0xAARRGGBB.
+  // Contoh: 0xFF berarti opasitas penuh (alpha 100%).
   static const Color bgDeep     = Color(0xFF060A0F);
   static const Color bgCard     = Color(0xFF0E1520);
   static const Color accent     = Color(0xFF3DDC84);
@@ -97,23 +99,29 @@ class DesktopLayout extends StatelessWidget {
             children: [
               // Header identitas di bagian atas.
               const _GlassNavbar(),
+              // Jarak vertikal dari navbar ke konten utama.
               const SizedBox(height: 60),
               Padding(
+                // Margin kiri-kanan khusus desktop agar konten tidak terlalu mepet.
                 padding: const EdgeInsets.symmetric(horizontal: 80),
                 child: Row(
+                  // Menjaga konten rata atas agar foto dan panel sejajar dari atas.
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Kartu profil (foto + info ringkas).
                     const _ProfileCard(),
+                    // Jarak horizontal antar kolom.
                     const SizedBox(width: 40),
                     // Panel informasi akademik detail.
                     Expanded(child: const _InfoPanel()),
                   ],
                 ),
               ),
+              // Jarak sebelum blok statistik.
               const SizedBox(height: 80),
               // Ringkasan statistik di bawah konten utama.
               const _StatsRow(),
+              // Bottom spacing agar ada ruang napas di bagian bawah halaman.
               const SizedBox(height: 80),
             ],
           ),
@@ -138,8 +146,10 @@ class MobileLayout extends StatelessWidget {
           child: Column(
             children: [
               const _GlassNavbar(),
+              // Spacing lebih kecil di mobile agar konten cepat terlihat.
               const SizedBox(height: 28),
               Padding(
+                // Margin horizontal mobile dibuat ringkas.
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
@@ -180,6 +190,7 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
     super.initState();
     // Durasi 12 detik untuk satu siklus, lalu diulang terus.
     _ctrl = AnimationController(
+      // `vsync` menghemat resource karena animasi ikut lifecycle layar.
       vsync: this,
       duration: const Duration(seconds: 12),
     )..repeat();
@@ -199,7 +210,9 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
       animation: _ctrl,
       builder: (context, _) {
         return CustomPaint(
+          // Mengisi seluruh area parent.
           size: Size.infinite,
+          // Painter menerima nilai progress animasi terkini.
           painter: _BgPainter(_ctrl.value),
         );
       },
@@ -216,6 +229,7 @@ class _BgPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Deep background
     canvas.drawRect(
+      // `Offset.zero & size` artinya rect dari (0,0) sebesar `size`.
       Offset.zero & size,
       Paint()..color = AppTheme.bgDeep,
     );
@@ -248,6 +262,7 @@ class _BgPainter extends CustomPainter {
         b.center,
         b.radius,
         Paint()
+          // Shader radial membuat efek memudar dari tengah ke luar.
           ..shader = RadialGradient(
             colors: [b.color, Colors.transparent],
           ).createShader(Rect.fromCircle(center: b.center, radius: b.radius)),
@@ -260,9 +275,11 @@ class _BgPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     const step = 60.0;
+    // Garis vertikal grid.
     for (double x = 0; x < size.width; x += step) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
     }
+    // Garis horizontal grid.
     for (double y = 0; y < size.height; y += step) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
     }
@@ -295,13 +312,18 @@ class _GlassNavbar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
       child: Container(
+        // Padding internal navbar.
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
+          // Warna semi transparan untuk efek glass.
           color: const Color(0xCC0E1520),
+          // Sudut rounded.
           borderRadius: BorderRadius.circular(16),
+          // Border halus agar kontur kartu terlihat.
           border: Border.all(color: AppTheme.border, width: 1),
           boxShadow: [
             BoxShadow(
+              // Shadow lembut untuk depth.
               color: AppTheme.accent.withValues(alpha: 0.08),
               blurRadius: 20,
               offset: const Offset(0, 4),
@@ -323,6 +345,7 @@ class _GlassNavbar extends StatelessWidget {
                 ),
               ),
               child: const Center(
+                // Inisial nama untuk penanda identitas.
                 child: Text(
                   'MA',
                   style: TextStyle(
@@ -364,6 +387,7 @@ class _NavBadge extends StatelessWidget {
     // Badge status reusable.
     // Label bisa diganti sesuai status lain bila diperlukan.
     return Container(
+      // Padding badge agar teks tetap nyaman dibaca.
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: AppTheme.accentGlow,
@@ -449,9 +473,11 @@ class _ProfileCardState extends State<_ProfileCard>
           // Lebar desktop dibuat fixed agar proporsional terhadap InfoPanel.
           // Mobile menggunakan lebar penuh (`double.infinity`).
           width: widget.isMobile ? double.infinity : 280,
+          // Padding isi kartu profil.
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
             color: const Color(0xDD0E1520),
+            // Corner radius utama kartu.
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: AppTheme.border, width: 1),
             boxShadow: [
@@ -468,7 +494,9 @@ class _ProfileCardState extends State<_ProfileCard>
               // Foto profil utama tanpa efek ring.
               CircleAvatar(
                 radius: avatarRadius,
+                // Foto utama dari folder assets.
                 backgroundImage: const AssetImage('assets/profile.jpg'),
+                // Fallback background jika gambar gagal tampil.
                 backgroundColor: AppTheme.bgCard,
               ),
               const SizedBox(height: 22),
@@ -476,6 +504,7 @@ class _ProfileCardState extends State<_ProfileCard>
               // Name
               const Text(
                 'Muhammad\nAghiitsillah',
+                // Dua baris nama agar proporsional terhadap lebar card.
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.textPri,
@@ -489,6 +518,7 @@ class _ProfileCardState extends State<_ProfileCard>
 
               // Role badge
               Container(
+                // Badge peran/role pengguna.
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppTheme.accentGlow,
@@ -509,6 +539,7 @@ class _ProfileCardState extends State<_ProfileCard>
               ),
 
               const SizedBox(height: 22),
+              // Pemisah visual antara identitas dan data ringkas.
               const Divider(color: AppTheme.border, thickness: 1),
               const SizedBox(height: 18),
 
@@ -535,9 +566,11 @@ class _QuickInfo extends StatelessWidget {
     // Komponen baris informasi singkat: ikon + label + value.
     return Row(
       children: [
+        // Ikon kategori data.
         Icon(icon, color: AppTheme.accent, size: 16),
         const SizedBox(width: 10),
         Text(
+          // Label ditampilkan sebelum value, contoh: "NRP: ".
           '$label: ',
           style: const TextStyle(
             color: AppTheme.textSec,
@@ -545,6 +578,7 @@ class _QuickInfo extends StatelessWidget {
           ),
         ),
         Expanded(
+          // Expanded membuat value memakai sisa ruang row.
           child: Text(
             value,
             style: const TextStyle(
@@ -575,6 +609,7 @@ class _InfoPanel extends StatelessWidget {
       children: [
         // Header
         Container(
+          // Kartu utama info akademik.
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
             color: const Color(0xDD0E1520),
@@ -708,6 +743,7 @@ class _DetailTile extends StatelessWidget {
   Widget build(BuildContext context) {
     // Tile kecil reusable untuk menampilkan pasangan judul dan isi.
     return Container(
+      // Padding isi tile agar teks tidak menempel ke border.
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: const Color(0xDD0E1520),
@@ -715,10 +751,12 @@ class _DetailTile extends StatelessWidget {
         border: Border.all(color: AppTheme.border),
       ),
       child: Column(
+        // Rata kiri supaya label dan isi mudah dipindai.
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
+              // Ikon kategori data.
               Icon(icon, color: AppTheme.accent, size: 18),
               const SizedBox(width: 8),
               Expanded(
@@ -760,6 +798,7 @@ class _StatsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     // Data ringkas yang ditampilkan sebagai statistik di bagian bawah.
     final stats = [
+      // Setiap item terdiri dari nilai utama + label.
       _StatData(value: '2024', label: 'Tahun\nMasuk'),
       _StatData(value: 'D3', label: 'Jenjang\nPendidikan'),
       _StatData(value: 'TI', label: 'Kode\nJurusan'),
@@ -771,6 +810,7 @@ class _StatsRow extends StatelessWidget {
       padding: EdgeInsets.symmetric(
           horizontal: isMobile ? 20 : 80),
       child: Container(
+        // Wrapper statistik.
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: const Color(0xDD0E1520),
@@ -825,6 +865,7 @@ class _StatItem extends StatelessWidget {
     return Column(
       children: [
         Text(
+          // Nilai utama statistik (lebih besar agar jadi fokus).
           data.value,
           style: const TextStyle(
             color: AppTheme.accent,
@@ -835,6 +876,7 @@ class _StatItem extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
+          // Label penjelas nilai statistik.
           data.label,
           textAlign: TextAlign.center,
           style: const TextStyle(
