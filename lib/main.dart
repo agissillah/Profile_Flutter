@@ -1,77 +1,71 @@
-import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:flutter/material.dart';
 
-// Titik awal aplikasi.
-// Flutter akan menjalankan widget root `MyApp` dari sini.
+// Entry point aplikasi Flutter.
 void main() {
+  // Menjalankan widget root aplikasi.
   runApp(const MyApp());
 }
 
-// Widget root aplikasi.
-// Bertugas menyiapkan konfigurasi global seperti tema dan halaman awal.
+// Widget root untuk konfigurasi global aplikasi.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // `MaterialApp` adalah pembungkus utama app berbasis Material Design.
+    // MaterialApp memegang tema, routing, dan halaman awal.
     return MaterialApp(
-      // Menghilangkan label DEBUG di kanan atas saat development.
+      // Menyembunyikan banner debug di kanan atas.
       debugShowCheckedModeBanner: false,
-      // Tema global app diambil dari `AppTheme`.
+      // Tema global aplikasi.
       theme: AppTheme.darkTheme,
-      // Halaman pertama yang ditampilkan saat app dibuka.
+      // Halaman pertama saat aplikasi dibuka.
       home: const AboutPage(),
     );
   }
 }
 
+// Kumpulan warna dan tema agar styling konsisten di semua widget.
 class AppTheme {
-  // Kumpulan warna utama agar styling konsisten di semua widget.
-  // Semua konstanta di bawah dipakai berulang agar mudah maintenance.
-  // Format hex ARGB: 0xAARRGGBB.
-  // Contoh: 0xFF berarti opasitas penuh (alpha 100%).
-  static const Color bgDeep     = Color(0xFF060A0F);
-  static const Color bgCard     = Color(0xFF0E1520);
-  static const Color accent     = Color(0xFF3DDC84);
+  // Warna latar paling gelap.
+  static const Color bgDeep = Color(0xFF060A0F);
+  // Warna kartu/panel.
+  static const Color bgCard = Color(0xFF0E1520);
+  // Warna aksen utama.
+  static const Color accent = Color(0xFF3DDC84);
+  // Warna aksen dengan transparansi untuk glow.
   static const Color accentGlow = Color(0x403DDC84);
-  static const Color textPri    = Color(0xFFE8F0FE);
-  static const Color textSec    = Color(0xFF8B9AB0);
-  static const Color border     = Color(0xFF1E2D3D);
+  // Warna teks utama.
+  static const Color textPri = Color(0xFFE8F0FE);
+  // Warna teks sekunder.
+  static const Color textSec = Color(0xFF8B9AB0);
+  // Warna border halus.
+  static const Color border = Color(0xFF1E2D3D);
 
-  // Tema gelap aplikasi.
-  // Semua widget yang membaca Theme akan mengikuti nilai di sini.
+  // Definisi tema gelap aplikasi.
   static final ThemeData darkTheme = ThemeData(
-    // Mengaktifkan komponen Material terbaru.
     useMaterial3: true,
-    // Menggunakan mode gelap.
     brightness: Brightness.dark,
-    // Warna default latar belakang Scaffold.
     scaffoldBackgroundColor: bgDeep,
-    // Skema warna yang akan dipakai lintas komponen.
     colorScheme: const ColorScheme.dark(
       primary: accent,
       surface: bgCard,
       onSurface: textPri,
     ),
-    // Font global aplikasi.
     fontFamily: 'monospace',
   );
 }
 
-// Halaman container utama yang memilih versi desktop/mobile.
+// Halaman container yang memilih layout desktop atau mobile.
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // LayoutBuilder dipakai untuk responsive layout berdasarkan lebar layar.
-    // > 800 px: desktop layout, <= 800 px: mobile layout.
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          // `constraints.maxWidth` adalah lebar area konten yang tersedia.
-          // Nilai ini paling tepat untuk menentukan mode responsive.
+          // Breakpoint sederhana untuk responsive layout.
           return constraints.maxWidth > 800
               ? const DesktopLayout()
               : const MobileLayout();
@@ -81,47 +75,36 @@ class AboutPage extends StatelessWidget {
   }
 }
 
-// ────────────────────────── DESKTOP ──────────────────────────
-
+// Layout khusus layar lebar.
 class DesktopLayout extends StatelessWidget {
   const DesktopLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Stack dipakai agar background animasi berada di layer belakang,
-    // sedangkan konten utama berada di atasnya.
     return Stack(
       children: [
+        // Latar belakang animasi.
         const _AnimatedBackground(),
-        // ScrollView mencegah overflow saat tinggi layar tidak cukup.
+        // Konten bisa di-scroll jika tinggi layar tidak cukup.
         SingleChildScrollView(
           child: Column(
             children: [
-              // Header identitas di bagian atas.
+              // Header halaman.
               const _GlassNavbar(),
-              // Jarak vertikal dari navbar ke konten utama.
               const SizedBox(height: 60),
               Padding(
-                // Margin kiri-kanan khusus desktop agar konten tidak terlalu mepet.
                 padding: const EdgeInsets.symmetric(horizontal: 80),
                 child: Row(
-                  // Menjaga konten rata atas agar foto dan panel sejajar dari atas.
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Kartu profil (foto + info ringkas).
-                    const _ProfileCard(),
-                    // Jarak horizontal antar kolom.
-                    const SizedBox(width: 40),
-                    // Panel informasi akademik detail.
-                    Expanded(child: const _InfoPanel()),
+                  children: const [
+                    // Kartu profil (kiri).
+                    _ProfileCard(),
+                    SizedBox(width: 40),
+                    // Panel informasi (kanan, fleksibel).
+                    Expanded(child: _InfoPanel()),
                   ],
                 ),
               ),
-              // Jarak sebelum blok statistik.
-              const SizedBox(height: 80),
-              // Ringkasan statistik di bawah konten utama.
-              const _StatsRow(),
-              // Bottom spacing agar ada ruang napas di bagian bawah halaman.
               const SizedBox(height: 80),
             ],
           ),
@@ -131,14 +114,12 @@ class DesktopLayout extends StatelessWidget {
   }
 }
 
-// ────────────────────────── MOBILE ──────────────────────────
-
+// Layout khusus layar kecil/mobile.
 class MobileLayout extends StatelessWidget {
   const MobileLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Struktur mobile sama dengan desktop, hanya jarak dan susunan yang disesuaikan.
     return Stack(
       children: [
         const _AnimatedBackground(),
@@ -146,19 +127,15 @@ class MobileLayout extends StatelessWidget {
           child: Column(
             children: [
               const _GlassNavbar(),
-              // Spacing lebih kecil di mobile agar konten cepat terlihat.
               const SizedBox(height: 28),
               Padding(
-                // Margin horizontal mobile dibuat ringkas.
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
-                  children: [
-                    // Urutan mobile dibuat vertikal agar nyaman dibaca.
-                    const _ProfileCard(isMobile: true),
-                    const SizedBox(height: 24),
-                    const _InfoPanel(),
-                    const SizedBox(height: 24),
-                    const _StatsRow(isMobile: true),
+                  children: const [
+                    // Di mobile semua komponen ditumpuk vertikal.
+                    _ProfileCard(isMobile: true),
+                    SizedBox(height: 24),
+                    _InfoPanel(),
                   ],
                 ),
               ),
@@ -171,8 +148,7 @@ class MobileLayout extends StatelessWidget {
   }
 }
 
-// ────────────────────────── ANIMATED BACKGROUND ──────────────────────────
-
+// Widget background animasi.
 class _AnimatedBackground extends StatefulWidget {
   const _AnimatedBackground();
 
@@ -182,15 +158,14 @@ class _AnimatedBackground extends StatefulWidget {
 
 class _AnimatedBackgroundState extends State<_AnimatedBackground>
     with SingleTickerProviderStateMixin {
-  // Controller animasi untuk menggerakkan latar belakang.
+  // Controller untuk menggerakkan animasi background.
   late AnimationController _ctrl;
 
   @override
   void initState() {
     super.initState();
-    // Durasi 12 detik untuk satu siklus, lalu diulang terus.
+    // Animasi berulang tiap 12 detik.
     _ctrl = AnimationController(
-      // `vsync` menghemat resource karena animasi ikut lifecycle layar.
       vsync: this,
       duration: const Duration(seconds: 12),
     )..repeat();
@@ -198,21 +173,20 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
 
   @override
   void dispose() {
-    // Selalu dispose controller untuk mencegah memory leak.
+    // Wajib dispose untuk mencegah memory leak.
     _ctrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // AnimatedBuilder akan rebuild CustomPaint setiap nilai animasi berubah.
+    // Rebuild painter setiap nilai animasi berubah.
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, _) {
         return CustomPaint(
           // Mengisi seluruh area parent.
           size: Size.infinite,
-          // Painter menerima nilai progress animasi terkini.
           painter: _BgPainter(_ctrl.value),
         );
       },
@@ -220,38 +194,43 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
   }
 }
 
+// Painter custom untuk menggambar latar animasi.
 class _BgPainter extends CustomPainter {
-  // `t` adalah progress animasi dari 0..1.
+  // Progress animasi (0..1).
   final double t;
   const _BgPainter(this.t);
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Deep background
+    // Layer 1: warna latar dasar.
     canvas.drawRect(
-      // `Offset.zero & size` artinya rect dari (0,0) sebesar `size`.
       Offset.zero & size,
       Paint()..color = AppTheme.bgDeep,
     );
 
-    // Blob aurora: lingkaran gradien transparan yang bergerak perlahan
-    // menggunakan fungsi sinus/cosinus agar motion terasa halus.
+    // Layer 2: blob aurora dengan posisi dinamis.
     final blobs = [
       _BlobData(
-        Offset(size.width * (0.15 + 0.08 * math.sin(t * math.pi * 2)),
-                size.height * (0.2 + 0.06 * math.cos(t * math.pi * 2))),
+        Offset(
+          size.width * (0.15 + 0.08 * math.sin(t * math.pi * 2)),
+          size.height * (0.2 + 0.06 * math.cos(t * math.pi * 2)),
+        ),
         size.width * 0.45,
         const Color(0x123DDC84),
       ),
       _BlobData(
-        Offset(size.width * (0.75 + 0.06 * math.cos(t * math.pi * 2 + 1)),
-                size.height * (0.6 + 0.07 * math.sin(t * math.pi * 2 + 1))),
+        Offset(
+          size.width * (0.75 + 0.06 * math.cos(t * math.pi * 2 + 1)),
+          size.height * (0.6 + 0.07 * math.sin(t * math.pi * 2 + 1)),
+        ),
         size.width * 0.4,
         const Color(0x0C1A6B8A),
       ),
       _BlobData(
-        Offset(size.width * (0.5 + 0.05 * math.sin(t * math.pi * 2 + 2)),
-                size.height * (0.85 + 0.04 * math.cos(t * math.pi * 2 + 2))),
+        Offset(
+          size.width * (0.5 + 0.05 * math.sin(t * math.pi * 2 + 2)),
+          size.height * (0.85 + 0.04 * math.cos(t * math.pi * 2 + 2)),
+        ),
         size.width * 0.35,
         const Color(0x0A3DDC84),
       ),
@@ -262,68 +241,58 @@ class _BgPainter extends CustomPainter {
         b.center,
         b.radius,
         Paint()
-          // Shader radial membuat efek memudar dari tengah ke luar.
+          // Radial gradient agar blob memudar ke luar.
           ..shader = RadialGradient(
             colors: [b.color, Colors.transparent],
           ).createShader(Rect.fromCircle(center: b.center, radius: b.radius)),
       );
     }
 
-    // Grid tipis untuk memberi tekstur futuristik di background.
+    // Layer 3: grid tipis sebagai tekstur visual.
     final gridPaint = Paint()
       ..color = const Color(0x071E2D3D)
       ..strokeWidth = 1;
 
     const step = 60.0;
-    // Garis vertikal grid.
+    // Garis vertikal.
     for (double x = 0; x < size.width; x += step) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
     }
-    // Garis horizontal grid.
+    // Garis horizontal.
     for (double y = 0; y < size.height; y += step) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
     }
   }
 
   @override
-  bool shouldRepaint(_BgPainter old) {
-    // Repaint hanya saat progress animasi berubah,
-    // agar rendering tetap efisien.
-    return old.t != t;
-  }
+  bool shouldRepaint(_BgPainter oldDelegate) => oldDelegate.t != t;
 }
 
+// Model data untuk satu blob aurora.
 class _BlobData {
-  // Model data sederhana untuk setiap blob aurora.
   final Offset center;
   final double radius;
   final Color color;
   const _BlobData(this.center, this.radius, this.color);
 }
 
-// ────────────────────────── NAVBAR ──────────────────────────
-
+// Navbar atas dengan gaya glassmorphism.
 class _GlassNavbar extends StatelessWidget {
   const _GlassNavbar();
 
   @override
   Widget build(BuildContext context) {
-    // Navbar dengan efek kartu gelap semi-transparan.
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
       child: Container(
-        // Padding internal navbar.
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
-          // Warna semi transparan untuk efek glass.
+          // Transparansi untuk efek kaca.
           color: const Color(0xCC0E1520),
-          // Sudut rounded.
           borderRadius: BorderRadius.circular(16),
-          // Border halus agar kontur kartu terlihat.
           border: Border.all(color: AppTheme.border, width: 1),
           boxShadow: [
             BoxShadow(
-              // Shadow lembut untuk depth.
               color: AppTheme.accent.withValues(alpha: 0.08),
               blurRadius: 20,
               offset: const Offset(0, 4),
@@ -332,7 +301,7 @@ class _GlassNavbar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Logo mark
+            // Logo kotak berisi inisial.
             Container(
               width: 32,
               height: 32,
@@ -345,7 +314,6 @@ class _GlassNavbar extends StatelessWidget {
                 ),
               ),
               child: const Center(
-                // Inisial nama untuk penanda identitas.
                 child: Text(
                   'MA',
                   style: TextStyle(
@@ -358,9 +326,9 @@ class _GlassNavbar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            // Nama utama sebagai branding personal.
+            // Judul/navbar text.
             const Text(
-              'Muhammad Aghiitsillah',
+              'Profile Pribadi',
               style: TextStyle(
                 color: AppTheme.textPri,
                 fontSize: 16,
@@ -369,8 +337,8 @@ class _GlassNavbar extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            // Badge status di sisi kanan navbar.
-            _NavBadge(label: 'Available'),
+            // Badge status kanan.
+            const _NavBadge(label: 'Available'),
           ],
         ),
       ),
@@ -378,16 +346,14 @@ class _GlassNavbar extends StatelessWidget {
   }
 }
 
+// Badge status kecil di navbar.
 class _NavBadge extends StatelessWidget {
   final String label;
   const _NavBadge({required this.label});
 
   @override
   Widget build(BuildContext context) {
-    // Badge status reusable.
-    // Label bisa diganti sesuai status lain bila diperlukan.
     return Container(
-      // Padding badge agar teks tetap nyaman dibaca.
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: AppTheme.accentGlow,
@@ -400,7 +366,7 @@ class _NavBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Titik status.
+          // Titik indikator status.
           Container(
             width: 6,
             height: 6,
@@ -425,10 +391,9 @@ class _NavBadge extends StatelessWidget {
   }
 }
 
-// ────────────────────────── PROFILE CARD ──────────────────────────
-
+// Kartu profil (foto, nama, role, info ringkas).
 class _ProfileCard extends StatefulWidget {
-  // `isMobile` menentukan ukuran komponen agar proporsional di layar kecil.
+  // Menentukan ukuran untuk mode mobile/desktop.
   final bool isMobile;
   const _ProfileCard({this.isMobile = false});
 
@@ -438,13 +403,13 @@ class _ProfileCard extends StatefulWidget {
 
 class _ProfileCardState extends State<_ProfileCard>
     with SingleTickerProviderStateMixin {
-  // Controller untuk efek pulse glow pada card.
+  // Controller animasi glow pada kartu profil.
   late AnimationController _pulse;
 
   @override
   void initState() {
     super.initState();
-    // Animasi bolak-balik (reverse) agar glow terlihat bernapas.
+    // Animasi bolak-balik agar glow terasa hidup.
     _pulse = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
@@ -453,35 +418,30 @@ class _ProfileCardState extends State<_ProfileCard>
 
   @override
   void dispose() {
-    // Dispose controller animasi pulse.
     _pulse.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Radius avatar dibedakan desktop vs mobile.
-    final double avatarRadius = widget.isMobile ? 70 : 100;
+    // Ukuran avatar disesuaikan ukuran layar.
+    final avatarRadius = widget.isMobile ? 70.0 : 100.0;
 
     return AnimatedBuilder(
       animation: _pulse,
       builder: (context, _) {
-        // Nilai glow berubah mengikuti progress animasi 0..1.
+        // Alpha glow berubah mengikuti progress animasi.
         final glow = 0.15 + 0.12 * _pulse.value;
 
         return Container(
-          // Lebar desktop dibuat fixed agar proporsional terhadap InfoPanel.
-          // Mobile menggunakan lebar penuh (`double.infinity`).
+          // Lebar penuh di mobile, fixed di desktop.
           width: widget.isMobile ? double.infinity : 280,
-          // Padding isi kartu profil.
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
             color: const Color(0xDD0E1520),
-            // Corner radius utama kartu.
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: AppTheme.border, width: 1),
             boxShadow: [
-              // Efek glow lembut yang intensitasnya berubah mengikuti animasi.
               BoxShadow(
                 color: AppTheme.accent.withValues(alpha: glow),
                 blurRadius: 40,
@@ -491,20 +451,16 @@ class _ProfileCardState extends State<_ProfileCard>
           ),
           child: Column(
             children: [
-              // Foto profil utama tanpa efek ring.
               CircleAvatar(
                 radius: avatarRadius,
-                // Foto utama dari folder assets.
+                // Foto profil dari assets.
                 backgroundImage: const AssetImage('assets/profile.jpg'),
-                // Fallback background jika gambar gagal tampil.
                 backgroundColor: AppTheme.bgCard,
               ),
               const SizedBox(height: 22),
-
-              // Name
               const Text(
                 'Muhammad\nAghiitsillah',
-                // Dua baris nama agar proporsional terhadap lebar card.
+                // Teks dibagi dua baris agar tetap proporsional.
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.textPri,
@@ -515,10 +471,8 @@ class _ProfileCardState extends State<_ProfileCard>
                 ),
               ),
               const SizedBox(height: 8),
-
-              // Role badge
               Container(
-                // Badge peran/role pengguna.
+                // Badge peran/jurusan.
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppTheme.accentGlow,
@@ -537,16 +491,22 @@ class _ProfileCardState extends State<_ProfileCard>
                   ),
                 ),
               ),
-
               const SizedBox(height: 22),
-              // Pemisah visual antara identitas dan data ringkas.
+              // Pemisah visual.
               const Divider(color: AppTheme.border, thickness: 1),
               const SizedBox(height: 18),
-
-              // Quick info rows
-              _QuickInfo(icon: Icons.badge_outlined,     label: 'NRP',     value: '3124521028'),
+              // Info ringkas identitas.
+              const _QuickInfo(
+                icon: Icons.badge_outlined,
+                label: 'NRP',
+                value: '3124521028',
+              ),
               const SizedBox(height: 12),
-              _QuickInfo(icon: Icons.location_on_outlined, label: 'Kampus', value: 'PSDKU Lamongan'),
+              const _QuickInfo(
+                icon: Icons.location_on_outlined,
+                label: 'Kampus',
+                value: 'PSDKU Lamongan',
+              ),
             ],
           ),
         );
@@ -555,22 +515,27 @@ class _ProfileCardState extends State<_ProfileCard>
   }
 }
 
+// Baris item informasi kecil: ikon + label + nilai.
 class _QuickInfo extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  const _QuickInfo({required this.icon, required this.label, required this.value});
+
+  const _QuickInfo({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Komponen baris informasi singkat: ikon + label + value.
     return Row(
       children: [
-        // Ikon kategori data.
+        // Ikon kategori info.
         Icon(icon, color: AppTheme.accent, size: 16),
         const SizedBox(width: 10),
         Text(
-          // Label ditampilkan sebelum value, contoh: "NRP: ".
+          // Label sebelum nilai (contoh: "NRP:").
           '$label: ',
           style: const TextStyle(
             color: AppTheme.textSec,
@@ -578,7 +543,7 @@ class _QuickInfo extends StatelessWidget {
           ),
         ),
         Expanded(
-          // Expanded membuat value memakai sisa ruang row.
+          // Expanded memastikan text panjang tetap aman di layout.
           child: Text(
             value,
             style: const TextStyle(
@@ -586,7 +551,6 @@ class _QuickInfo extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
-            // Ellipsis mencegah teks panjang merusak layout.
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -595,21 +559,17 @@ class _QuickInfo extends StatelessWidget {
   }
 }
 
-// ────────────────────────── INFO PANEL ──────────────────────────
-
+// Panel informasi akademik detail.
 class _InfoPanel extends StatelessWidget {
   const _InfoPanel();
 
   @override
   Widget build(BuildContext context) {
-    // Panel informasi akademik utama.
-    // Isinya dibagi 2 bagian: header deskripsi + grid detail data.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header
+        // Kartu utama deskripsi kampus.
         Container(
-          // Kartu utama info akademik.
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
             color: const Color(0xDD0E1520),
@@ -621,7 +581,7 @@ class _InfoPanel extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  // Ikon kategori section.
+                  // Ikon section.
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -648,7 +608,7 @@ class _InfoPanel extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              // Nama institusi utama.
+              // Nama institusi.
               const Text(
                 'Politeknik Elektronika\nNegeri Surabaya',
                 style: TextStyle(
@@ -664,7 +624,7 @@ class _InfoPanel extends StatelessWidget {
               const Text(
                 'Politeknik Elektronika Negeri Surabaya (PENS) PSDKU Lamongan adalah kampus vokasi negeri di Lamongan, Jawa Timur, '
                 'yang menyelenggarakan program studi D3, terutama Teknik Informatika dan Teknologi Multimedia Broadcasting. '
-                ' Kampus ini fokus pada praktik, berlokasi di Lamongan, dan sering meraih prestasi nasional di bidang teknologi dan kreatif.',
+                'Kampus ini fokus pada praktik, berlokasi di Lamongan, dan sering meraih prestasi nasional di bidang teknologi dan kreatif.',
                 style: TextStyle(
                   color: AppTheme.textSec,
                   fontSize: 14,
@@ -674,24 +634,19 @@ class _InfoPanel extends StatelessWidget {
             ],
           ),
         ),
-
         const SizedBox(height: 20),
-
-        // Detail grid
-        // Menampilkan data akademik dalam dua baris tile agar mudah dipindai.
+        // Grid detail baris pertama.
         Row(
-          children: [
+          children: const [
             Expanded(
-              // Tile 1: institusi.
               child: _DetailTile(
                 icon: Icons.account_balance_outlined,
                 title: 'Perguruan Tinggi',
                 subtitle: 'PENS',
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
-              // Tile 2: lokasi kampus.
               child: _DetailTile(
                 icon: Icons.place_outlined,
                 title: 'Lokasi Kampus',
@@ -700,22 +655,19 @@ class _InfoPanel extends StatelessWidget {
             ),
           ],
         ),
-
         const SizedBox(height: 16),
-
+        // Grid detail baris kedua.
         Row(
-          children: [
+          children: const [
             Expanded(
-              // Tile 3: jurusan.
               child: _DetailTile(
                 icon: Icons.code_outlined,
                 title: 'Jurusan',
                 subtitle: 'Teknik Informatika',
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
-              // Tile 4: nomor registrasi mahasiswa.
               child: _DetailTile(
                 icon: Icons.tag_outlined,
                 title: 'NRP',
@@ -729,10 +681,12 @@ class _InfoPanel extends StatelessWidget {
   }
 }
 
+// Tile reusable untuk menampilkan satu data ringkas.
 class _DetailTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+
   const _DetailTile({
     required this.icon,
     required this.title,
@@ -741,9 +695,7 @@ class _DetailTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Tile kecil reusable untuk menampilkan pasangan judul dan isi.
     return Container(
-      // Padding isi tile agar teks tidak menempel ke border.
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: const Color(0xDD0E1520),
@@ -751,16 +703,16 @@ class _DetailTile extends StatelessWidget {
         border: Border.all(color: AppTheme.border),
       ),
       child: Column(
-        // Rata kiri supaya label dan isi mudah dipindai.
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              // Ikon kategori data.
+              // Ikon kategori tile.
               Icon(icon, color: AppTheme.accent, size: 18),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
+                  // Judul data.
                   title,
                   style: const TextStyle(
                     color: AppTheme.textSec,
@@ -774,6 +726,7 @@ class _DetailTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
+          // Nilai data.
           Text(
             subtitle,
             style: const TextStyle(
@@ -784,108 +737,6 @@ class _DetailTile extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-// ────────────────────────── STATS ROW ──────────────────────────
-
-class _StatsRow extends StatelessWidget {
-  final bool isMobile;
-  const _StatsRow({this.isMobile = false});
-
-  @override
-  Widget build(BuildContext context) {
-    // Data ringkas yang ditampilkan sebagai statistik di bagian bawah.
-    final stats = [
-      // Setiap item terdiri dari nilai utama + label.
-      _StatData(value: '2024', label: 'Tahun\nMasuk'),
-      _StatData(value: 'D3', label: 'Jenjang\nPendidikan'),
-      _StatData(value: 'TI', label: 'Kode\nJurusan'),
-      _StatData(value: 'PENS', label: 'Kode\nKampus'),
-    ];
-
-    return Padding(
-      // Padding horizontal mengikuti tipe layar.
-      padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 20 : 80),
-      child: Container(
-        // Wrapper statistik.
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: const Color(0xDD0E1520),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppTheme.border),
-        ),
-        child: Row(
-          // `asMap().entries` dipakai agar index tersedia,
-          // sehingga kita bisa menambahkan separator kecuali pada item terakhir.
-          children: stats
-              .asMap()
-              .entries
-              .map((e) {
-                final isLast = e.key == stats.length - 1;
-                return Expanded(
-                  child: Row(
-                    children: [
-                      // Setiap item statistik mengisi ruang secara merata.
-                      Expanded(child: _StatItem(data: e.value)),
-                      if (!isLast)
-                        // Garis pemisah antar item statistik.
-                        Container(
-                          width: 1,
-                          height: 40,
-                          color: AppTheme.border,
-                        ),
-                    ],
-                  ),
-                );
-              })
-              .toList(),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatData {
-  // Model data statistik.
-  final String value;
-  final String label;
-  const _StatData({required this.value, required this.label});
-}
-
-class _StatItem extends StatelessWidget {
-  final _StatData data;
-  const _StatItem({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    // Satu blok statistik: angka/nilai utama + label deskriptif.
-    return Column(
-      children: [
-        Text(
-          // Nilai utama statistik (lebih besar agar jadi fokus).
-          data.value,
-          style: const TextStyle(
-            color: AppTheme.accent,
-            fontSize: 26,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          // Label penjelas nilai statistik.
-          data.label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: AppTheme.textSec,
-            fontSize: 11,
-            height: 1.4,
-          ),
-        ),
-      ],
     );
   }
 }
