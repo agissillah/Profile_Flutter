@@ -22,12 +22,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLoading());
 
     try {
-      final token = await _repository.login(
-        email: event.email,
+      final session = await _repository.login(
+        username: event.username,
         password: event.password,
       );
 
-      emit(AuthAuthenticated(email: event.email, token: token));
+      emit(AuthAuthenticated(session: session));
     } on AuthException catch (error) {
       emit(AuthUnauthenticated(errorMessage: error.message));
     } catch (_) {

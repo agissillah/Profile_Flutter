@@ -6,9 +6,9 @@ sealed class AuthEvent {
 }
 
 final class LoginSubmitted extends AuthEvent {
-  const LoginSubmitted({required this.email, required this.password});
+  const LoginSubmitted({required this.username, required this.password});
 
-  final String email;
+  final String username;
   final String password;
 }
 

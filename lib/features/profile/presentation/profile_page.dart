@@ -3,20 +3,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_event.dart';
+import '../../auth/data/auth_session.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key, required this.email, required this.token});
+  const ProfilePage({super.key, required this.session});
 
-  final String email;
-  final String token;
+  final AuthSession session;
 
   String get _maskedToken {
-    if (token.length <= 10) {
-      return token;
+    if (session.token.length <= 10) {
+      return session.token;
     }
 
-    final start = token.substring(0, 6);
-    final end = token.substring(token.length - 4);
+    final start = session.token.substring(0, 6);
+    final end = session.token.substring(session.token.length - 4);
     return '$start...$end';
   }
 
@@ -59,6 +59,22 @@ class ProfilePage extends StatelessWidget {
                   label: const Text('Mahasiswa Teknik Informatika'),
                   backgroundColor: Colors.green.withValues(alpha: 0.2),
                   labelStyle: const TextStyle(color: Colors.green),
+                ),
+                const SizedBox(height: 12),
+                _InfoCard(
+                  icon: Icons.person,
+                  label: 'Username',
+                  value: session.username.isEmpty ? '-' : session.username,
+                ),
+                _InfoCard(
+                  icon: Icons.email,
+                  label: 'Email',
+                  value: session.email.isEmpty ? '-' : session.email,
+                ),
+                _InfoCard(
+                  icon: Icons.vpn_key,
+                  label: 'Token',
+                  value: _maskedToken,
                 ),
                 const _InfoCard(
                   icon: Icons.school,

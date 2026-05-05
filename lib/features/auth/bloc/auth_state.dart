@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../data/auth_session.dart';
+
 @immutable
 sealed class AuthState {
   const AuthState();
@@ -16,8 +18,7 @@ final class AuthLoading extends AuthState {
 }
 
 final class AuthAuthenticated extends AuthState {
-  const AuthAuthenticated({required this.email, required this.token});
+  const AuthAuthenticated({required this.session});
 
-  final String email;
-  final String token;
+  final AuthSession session;
 }

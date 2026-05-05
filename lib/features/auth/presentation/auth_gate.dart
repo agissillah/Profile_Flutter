@@ -14,7 +14,7 @@ class AuthGate extends StatelessWidget {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is AuthAuthenticated) {
-          return ProfilePage(email: state.email, token: state.token);
+          return ProfilePage(session: state.session);
         }
 
         return LoginPage(

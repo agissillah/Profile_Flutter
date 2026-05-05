@@ -16,14 +16,14 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
 
     context.read<AuthBloc>().add(
       LoginSubmitted(
-        email: _emailController.text.trim(),
+        username: _usernameController.text.trim(),
         password: _passwordController.text.trim(),
       ),
     );
@@ -80,19 +80,19 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
+                        controller: _usernameController,
+                        keyboardType: TextInputType.text,
                         decoration: InputDecoration(
-                          labelText: 'Email',
-                          hintText: 'Masukkan email',
+                          labelText: 'Username',
+                          hintText: 'Masukkan username',
                           labelStyle: TextStyle(color: softFieldTextColor),
                           hintStyle: TextStyle(color: softFieldTextColor),
                           border: const OutlineInputBorder(),
                         ),
                         validator: (value) {
-                          final email = value?.trim() ?? '';
-                          if (email.isEmpty) {
-                            return 'Email wajib diisi';
+                          final username = value?.trim() ?? '';
+                          if (username.isEmpty) {
+                            return 'Username wajib diisi';
                           }
                           return null;
                         },
@@ -154,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Demo login: admin / admin123',
+                        'Demo login: emilys / emilyspass',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,

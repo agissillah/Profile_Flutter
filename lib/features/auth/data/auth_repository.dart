@@ -1,11 +1,15 @@
 import 'auth_api_service.dart';
+import 'auth_session.dart';
 
 class AuthRepository {
   AuthRepository(this._apiService);
 
   final AuthApiService _apiService;
 
-  Future<String> login({required String email, required String password}) {
-    return _apiService.login(email: email, password: password);
+  Future<AuthSession> login({
+    required String username,
+    required String password,
+  }) {
+    return _apiService.login(username: username, password: password);
   }
 }
