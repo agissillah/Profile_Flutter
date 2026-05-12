@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import 'auth_session.dart';
+import '../models/auth_session_model.dart';
 
-class AuthException implements Exception {
-  AuthException(this.message);
+class AuthRemoteException implements Exception {
+  AuthRemoteException(this.message);
 
   final String message;
 
@@ -13,12 +13,20 @@ class AuthException implements Exception {
   String toString() => message;
 }
 
-class AuthApiService {
+abstract class AuthRemoteDataSource {
+  Future<AuthSessionModel> login({
+    required String username,
+    required String password,
+  });
+}
+
+class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   static const String _usersUrl =
       'https://raw.githubusercontent.com/Ovi/DummyJSON/master/database/users.json';
   static const Duration _timeout = Duration(seconds: 10);
 
-  Future<AuthSession> login({
+  @override
+  Future<AuthSessionModel> login({
     required String username,
     required String password,
   }) async {
@@ -30,11 +38,11 @@ class AuthApiService {
     try {
       response = await http.get(uri).timeout(_timeout);
     } catch (_) {
-      throw AuthException('Gagal terhubung ke API dummy.');
+      throw AuthRemoteException('Gagal terhubung ke API dummy.');
     }
 
     if (response.statusCode != 200) {
-      throw AuthException('Gagal mengambil data user.');
+      throw AuthRemoteException('Gagal mengambil data user.');
     }
 
     dynamic decoded;
@@ -45,7 +53,7 @@ class AuthApiService {
     }
 
     if (decoded is! List) {
-      throw AuthException('Response tidak valid.');
+      throw AuthRemoteException('Response tidak valid.');
     }
 
     for (final entry in decoded) {
@@ -63,7 +71,7 @@ class AuthApiService {
           ),
         );
 
-        return AuthSession.fromJson(<String, dynamic>{
+        return AuthSessionModel.fromJson(<String, dynamic>{
           'id': entry['id'] ?? 0,
           'username': entry['username'] ?? '',
           'email': entry['email'] ?? '',
@@ -72,6 +80,6 @@ class AuthApiService {
       }
     }
 
-    throw AuthException('Username atau password salah.');
+    throw AuthRemoteException('Username atau password salah.');
   }
 }

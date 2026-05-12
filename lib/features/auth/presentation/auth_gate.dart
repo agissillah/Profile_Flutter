@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../profile/domain/entities/profile_input.dart';
+import '../../profile/domain/repositories/profile_repository.dart';
+import '../../profile/domain/usecases/get_profile.dart';
+import '../../profile/presentation/cubit/profile_cubit.dart';
 import '../../profile/presentation/profile_page.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
@@ -14,7 +18,21 @@ class AuthGate extends StatelessWidget {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is AuthAuthenticated) {
-          return ProfilePage(session: state.session);
+          final input = ProfileInput(
+            username: state.session.username,
+            email: state.session.email,
+            token: state.session.token,
+          );
+
+          return BlocProvider(
+            create: (context) => ProfileCubit(
+              getProfile: GetProfileUseCase(
+                context.read<ProfileRepository>(),
+              ),
+              input: input,
+            ),
+            child: const ProfilePage(),
+          );
         }
 
         return LoginPage(

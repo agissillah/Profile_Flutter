@@ -1,20 +1,17 @@
-class AuthSession {
-  const AuthSession({
-    required this.id,
-    required this.username,
-    required this.email,
-    required this.token,
+import '../../domain/entities/auth_session.dart';
+
+class AuthSessionModel extends AuthSession {
+  const AuthSessionModel({
+    required super.id,
+    required super.username,
+    required super.email,
+    required super.token,
   });
 
-  final int id;
-  final String username;
-  final String email;
-  final String token;
-
-  factory AuthSession.fromJson(Map<String, dynamic> json) {
+  factory AuthSessionModel.fromJson(Map<String, dynamic> json) {
     final tokenValue = json['accessToken'] ?? json['token'];
 
-    return AuthSession(
+    return AuthSessionModel(
       id: json['id'] is int
           ? json['id'] as int
           : int.tryParse(json['id']?.toString() ?? '') ?? 0,

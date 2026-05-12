@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../data/auth_session.dart';
+import '../domain/entities/auth_session.dart';
 
 @immutable
 sealed class AuthState {
